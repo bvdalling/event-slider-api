@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.IO Video Control</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+      /* Simple styling for clarity */
+      .form-group {
+        margin: 20px;
+      }
+      .button-group {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="video:url">Video URL</label>
+          <input type="url" name="video:url" id="video:url" />
+          <div class="button-group">
+            <button id="video:start">Start</button>
+            <button id="video:stop">Stop</button>
+            <button id="video:pause">Pause</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      // Initialize Socket.IO client
+      const socket = io("http://localhost:8080", {
+        auth: { token: "some-bacon-and-eggs-for-breakfast-1920-blender" }, // Replace with your actual auth token
+      });
+
+      // Button event listeners
+      document.getElementById("video:start").onclick = () => {
+        const videoUrl = document.getElementById("video:url").value;
+        socket.emit("video-start", { url: videoUrl });
+      };
+
+      document.getElementById("video:stop").onclick = () => {
+        socket.emit("video-stop", {});
+      };
+
+      document.getElementById("video:pause").onclick = () => {
+        socket.emit("video-pause", {});
+      };
+
+      // Optional: Listen for responses from the server
+      socket.on("video:start", (data) => {
+        console.log("Video started:", data);
+      });
+
+      socket.on("video:stop", (data) => {
+        console.log("Video stopped:", data);
+      });
+
+      socket.on("video:pause", (data) => {
+        console.log("Video paused:", data);
+      });
+    </script>
+  </body>
+</html>
