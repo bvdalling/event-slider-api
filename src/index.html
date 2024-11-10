@@ -73,6 +73,7 @@
   <script>
 
     let socket;
+    let socketAddr = window.location.origin.replace('https', 'ws').replace('http', 'ws')
 
     const audioEmbeds = [
       { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
@@ -84,7 +85,7 @@
         socket.disconnect();
       }
 
-      socket = io(window.location.origin.replace('https', 'ws').replace('http', 'ws'), {
+      socket = io(socketAddr, {
         auth: { token: apiKey },
       });
 
@@ -132,7 +133,7 @@
         .replace("https://youtu.be/", "")
         .replace("https://m.youtube.com/watch?v=", "");
 
-      console.log("Sending Video", url);
+      console.log("Sending Video", url, "to socket", socketAddr);
       socket.emit("video-start", { url: url });
     };
 
