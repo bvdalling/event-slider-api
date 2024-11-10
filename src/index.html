@@ -21,6 +21,12 @@
 <body>
   <main>
     <div class="form-group">
+
+      <div class="input-group">
+        <label for="api-key">API KEY</label>
+        <input type="password" name="api-key" id="api-key" />
+      </div>
+
       <div class="input-group">
         <label for="video:url">Video URL</label>
         <input type="url" name="video:url" id="video:url" />
@@ -31,7 +37,6 @@
       </div>
 
       <div class="input-group">
-
         <label for="audio:url">Audio URL</label>
         <select name="audio:url:select" id="audio:url:select">
           <option value="">Select Audio</option>
@@ -67,50 +72,56 @@
   </main>
   <script>
 
+    let socket;
+
     const audioEmbeds = [
       { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
       { name: 'Chillwave - Synthwave - Retrowave', url: 'https://www.youtube.com/embed/videoseries?si=wVLbmMrEIAed2DBn&amp;list=PLOtNYlNIGer0jmWpFtTWqMkfP56iuZg1w' }
-    ]
+    ];
 
-    const audioUrlSelect = document.getElementById("audio:url:select")
-
-    // prefill audio urls with embeds
-    audioEmbeds.forEach((audioEmbed, index) => {
-      console.log(audioEmbed)
-      if (audioEmbed) {
-        const option = document.createElement("option");
-        option.value = audioEmbed.url;
-        option.text = audioEmbed.name
-        audioUrlSelect.appendChild(option);
+    const initializeSocket = (apiKey) => {
+      if (socket) {
+        socket.disconnect();
       }
+
+      socket = io(window.location.origin.replace('https', 'ws').replace('http', 'ws'), {
+        auth: { token: apiKey },
+      });
+
+      // Event listeners for server responses
+      socket.on("video:start", (data) => {
+        console.log("Video started:", data);
+      });
+
+      socket.on("video:stop", (data) => {
+        console.log("Video stopped:", data);
+      });
+
+      socket.on("video:pause", (data) => {
+        console.log("Video paused:", data);
+      });
+    };
+
+    // Event handler for API key input change
+    const apiKeyInput = document.getElementById("api-key");
+    apiKeyInput.onchange = (e) => {
+      const newApiKey = e.target.value;
+      initializeSocket(newApiKey);
+    };
+
+    // Prefill audio URLs
+    const audioUrlSelect = document.getElementById("audio:url:select");
+    audioEmbeds.forEach((audioEmbed) => {
+      const option = document.createElement("option");
+      option.value = audioEmbed.url;
+      option.text = audioEmbed.name;
+      audioUrlSelect.appendChild(option);
     });
 
+    // Update audio URL input when selection changes
     audioUrlSelect.onchange = (e) => {
       const audioUrl = e.target.value;
       document.getElementById("audio:url").value = audioUrl;
-    };
-
-    // Initialize Socket.IO client
-    const socket = io("ws://localhost:8080", {
-      auth: { token: "some-bacon-and-eggs-for-breakfast-1920-blender" }, // Replace with your actual auth token
-    });
-
-    const getEmbedUrl = (url, typeofUrl = 'music') => {
-      return url
-    }
-
-    document.getElementById("small-qr").onclick = () => {
-      socket.emit("qr-code", 'qr-code');
-    };
-
-    document.getElementById("large-qr").onclick = () => {
-      socket.emit("qr-code", 'qr-code qr-code__large');
-    };
-
-    document.getElementById("alert:message").onchange = (e) => {
-      const alertType = document.getElementById("alert:type").value;
-      const alertMessage = e.target.value;
-      socket.emit("alert-msg", { type: alertType, message: alertMessage });
     };
 
     // Button event listeners
@@ -129,31 +140,158 @@
       socket.emit("video-stop", {});
     };
 
-    // audio
     document.getElementById("audio:start").onclick = () => {
       const audioUrl = document.getElementById("audio:url").value;
-
       console.log("Sending Audio", audioUrl);
-      socket.emit("audio-start", { url: getEmbedUrl(audioUrl) });
+      socket.emit("audio-start", { url: audioUrl });
     };
 
     document.getElementById("audio:stop").onclick = () => {
       socket.emit("audio-stop", {});
     };
 
-    // Optional: Listen for responses from the server
-    socket.on("video:start", (data) => {
-      console.log("Video started:", data);
-    });
+    document.getElementById("small-qr").onclick = () => {
+      socket.emit("qr-code", 'qr-code');
+    };
 
-    socket.on("video:stop", (data) => {
-      console.log("Video stopped:", data);
-    });
+    document.getElementById("large-qr").onclick = () => {
+      socket.emit("qr-code", 'qr-code qr-code__large');
+    };
 
-    socket.on("video:pause", (data) => {
-      console.log("Video paused:", data);
-    });
+    document.getElementById("alert:message").onchange = (e) => {
+      const alertType = document.getElementById("alert:type").value;
+      const alertMessage = e.target.value;
+      socket.emit("alert-msg", { type: alertType, message: alertMessage });
+    };
+
+    // Initial socket connection with a default API key if available
+    const defaultApiKey = apiKeyInput.value || "some-bacon-and-eggs-for-breakfast-1920-blender";
+    initializeSocket(defaultApiKey);
+
   </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f6f8;
+    }
+    
+    main {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .input-group label {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    input[type="password"],
+    input[type="url"],
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d9e0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #ffffff;
+      transition: background-color 0.2s;
+    }
+    
+    button#video\:start,
+    button#audio\:start,
+    button#small-qr,
+    button#large-qr {
+      background-color: #4a90e2;
+    }
+    
+    button#video\:stop,
+    button#audio\:stop {
+      background-color: #d9534f;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
+    }
+    
+    select {
+      background-color: #ffffff;
+      padding: 10px;
+      border: 1px solid #d1d9e0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    #alert\:message {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d9e0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    #alert\:type {
+      margin-top: 5px;
+    }
+    
+  </style>
 </body>
 
 </html>
