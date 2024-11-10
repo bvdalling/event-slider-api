@@ -6,7 +6,14 @@ var http = require("http");
 var app = require("express")();
 var cors = require("cors");
 var server = http.createServer(app);
-var io = require("socket.io")(server);
+var io = require("socket.io")(server, {
+  cors: {
+    origin: "*", // Allow requests from your specific origin
+    methods: ["GET", "POST"], // Allow these methods
+    allowedHeaders: ["Content-Type"], // Allow these headers
+  }
+});
+
 const path = require("path");
 
 app.use(cors({
