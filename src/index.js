@@ -13,8 +13,11 @@ var PORT = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY || "some-bacon-and-eggs-for-breakfast-1920-blender";
 
 function SenderIsAuthorized(socket) {
-  const authHeader = socket.handshake.auth['token']
-  return authHeader === apiKey; // Simple token check
+  const authHeader = socket.handshake.auth['token'];
+  const origin = socket.handshake.headers.origin;
+  
+  // Check if token matches and origin matches the authorized domain
+  return authHeader === apiKey && origin === process.env.AUTHORIZED_DOMAIN;
 }
 
 function videoStart(socket, data) {
