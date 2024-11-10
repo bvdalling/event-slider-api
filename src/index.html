@@ -1,66 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Socket.IO Video Control</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <style>
-      /* Simple styling for clarity */
-      .form-group {
-        margin: 20px;
-      }
-      .button-group {
-        margin-top: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <div class="form-group">
-        <div class="input-group">
-          <label for="video:url">Video URL</label>
-          <input type="url" name="video:url" id="video:url" />
-          <div class="button-group">
-            <button id="video:start">Start</button>
-            <button id="video:stop">Stop</button>
-            <button id="video:pause">Pause</button>
-          </div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socket.IO Video Control</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    /* Simple styling for clarity */
+    .form-group {
+      margin: 20px;
+    }
+
+    .button-group {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="form-group">
+      <div class="input-group">
+        <label for="video:url">Video URL</label>
+        <input type="url" name="video:url" id="video:url" />
+        <div class="button-group">
+          <button id="video:start">Start</button>
+          <button id="video:stop">Stop</button>
         </div>
       </div>
-    </main>
-    <script>
-      // Initialize Socket.IO client
-      const socket = io("http://localhost:8080", {
-        auth: { token: "some-bacon-and-eggs-for-breakfast-1920-blender" }, // Replace with your actual auth token
-      });
 
-      // Button event listeners
-      document.getElementById("video:start").onclick = () => {
-        const videoUrl = document.getElementById("video:url").value;
-        socket.emit("video-start", { url: videoUrl });
-      };
+      <div class="input-group">
 
-      document.getElementById("video:stop").onclick = () => {
-        socket.emit("video-stop", {});
-      };
+        <label for="audio:url">Audio URL</label>
+        <select name="audio:url:select" id="audio:url:select">
+          <option value="">Select Audio</option>
+        </select>
+        <input type="url" name="audio:url" id="audio:url" />
+        <div class="button-group">
+          <button id="audio:start">Start</button>
+          <button id="audio:stop">Stop</button>
+        </div>
+      </div>
 
-      document.getElementById("video:pause").onclick = () => {
-        socket.emit("video-pause", {});
-      };
+      <div class="input-group">
+        <label for="">QR Code</label>
+        <div class="button-group">
+          <button id="small-qr">Small</button>
+          <button id="large-qr">Large</button>
+        </div>
+      </div>
 
-      // Optional: Listen for responses from the server
-      socket.on("video:start", (data) => {
-        console.log("Video started:", data);
-      });
+      <div class="input-group">
+        <label for="">Dashboard Alert</label>
+        <div>
+          <select name="alert" id="alert:type">
+            <option value="success">Success</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="danger">Danger</option>
+          </select>
+          <input type="text" name="alert:message" id="alert:message" />
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
 
-      socket.on("video:stop", (data) => {
-        console.log("Video stopped:", data);
-      });
+    const audioEmbeds = [
+      { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
+      { name: 'Chillwave - Synthwave - Retrowave', url: 'https://www.youtube.com/embed/videoseries?si=wVLbmMrEIAed2DBn&amp;list=PLOtNYlNIGer0jmWpFtTWqMkfP56iuZg1w' }
+    ]
 
-      socket.on("video:pause", (data) => {
-        console.log("Video paused:", data);
-      });
-    </script>
-  </body>
+    const audioUrlSelect = document.getElementById("audio:url:select")
+
+    // prefill audio urls with embeds
+    audioEmbeds.forEach((audioEmbed, index) => {
+      console.log(audioEmbed)
+      if (audioEmbed) {
+        const option = document.createElement("option");
+        option.value = audioEmbed.url;
+        option.text = audioEmbed.name
+        audioUrlSelect.appendChild(option);
+      }
+    });
+
+    audioUrlSelect.onchange = (e) => {
+      const audioUrl = e.target.value;
+      document.getElementById("audio:url").value = audioUrl;
+    };
+
+    // Initialize Socket.IO client
+    const socket = io("ws://localhost:8080", {
+      auth: { token: "some-bacon-and-eggs-for-breakfast-1920-blender" }, // Replace with your actual auth token
+    });
+
+    const getEmbedUrl = (url, typeofUrl = 'music') => {
+      return url
+    }
+
+    document.getElementById("small-qr").onclick = () => {
+      socket.emit("qr-code", 'qr-code');
+    };
+
+    document.getElementById("large-qr").onclick = () => {
+      socket.emit("qr-code", 'qr-code qr-code__large');
+    };
+
+    document.getElementById("alert:message").onchange = (e) => {
+      const alertType = document.getElementById("alert:type").value;
+      const alertMessage = e.target.value;
+      socket.emit("alert-msg", { type: alertType, message: alertMessage });
+    };
+
+    // Button event listeners
+    document.getElementById("video:start").onclick = () => {
+      const videoUrl = document.getElementById("video:url").value;
+      const url = `https://www.youtube.com/embed/${videoUrl}`
+        .replace("https://www.youtube.com/watch?v=", "")
+        .replace("https://youtu.be/", "")
+        .replace("https://m.youtube.com/watch?v=", "");
+
+      console.log("Sending Video", url);
+      socket.emit("video-start", { url: url });
+    };
+
+    document.getElementById("video:stop").onclick = () => {
+      socket.emit("video-stop", {});
+    };
+
+    // audio
+    document.getElementById("audio:start").onclick = () => {
+      const audioUrl = document.getElementById("audio:url").value;
+
+      console.log("Sending Audio", audioUrl);
+      socket.emit("audio-start", { url: getEmbedUrl(audioUrl) });
+    };
+
+    document.getElementById("audio:stop").onclick = () => {
+      socket.emit("audio-stop", {});
+    };
+
+    // Optional: Listen for responses from the server
+    socket.on("video:start", (data) => {
+      console.log("Video started:", data);
+    });
+
+    socket.on("video:stop", (data) => {
+      console.log("Video stopped:", data);
+    });
+
+    socket.on("video:pause", (data) => {
+      console.log("Video paused:", data);
+    });
+  </script>
+</body>
+
 </html>
