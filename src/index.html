@@ -73,8 +73,9 @@
   <script>
 
     let socket;
-    let socketAddr = window.location.origin.replace('https', 'ws').replace('http', 'ws')
+    let socketAddr = window.location.origin.replace('https', 'wss').replace('http', 'wss')
 
+    console.log('Socket Address:', socketAddr);
     const audioEmbeds = [
       { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
       { name: 'Chillwave - Synthwave - Retrowave', url: 'https://www.youtube.com/embed/videoseries?si=wVLbmMrEIAed2DBn&amp;list=PLOtNYlNIGer0jmWpFtTWqMkfP56iuZg1w' }
