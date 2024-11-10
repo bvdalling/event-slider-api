@@ -4,9 +4,16 @@
 
 var http = require("http");
 var app = require("express")();
+var cors = require("cors");
 var server = http.createServer(app);
 var io = require("socket.io")(server);
 const path = require("path");
+
+app.use(cors({
+  origin: "*", // Allow requests from localhost:3000
+  methods: ["GET", "POST"], // Allow these methods
+  allowedHeaders: ["Content-Type"], // Allow these headers
+}));
 
 var PORT = process.env.PORT || 3000;
 
