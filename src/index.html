@@ -178,6 +178,11 @@
     
     initializeSocket(defaultApiKey);
 
+
+    const isFirstRun = window.localStorage.getItem("is-first-run")
+    if (isFirstRun !== "1" && isFirstRun !== 1) {
+      alert("In order for the client to actually autoplay content you need to whitelist the client domain in the browser. This allows the event-slider to recieve commands from this API and autoplay media.")
+    }
   </script>
 
   <style>
