@@ -173,7 +173,7 @@
     const defaultApiKey = window.localStorage.getItem("api-key");
 
     if (!defaultApiKey || defaultApiKey == "null") {
-      window.localStorage.setItem(prompt("Enter the API Key."))
+      window.localStorage.setItem("api-key", prompt("Enter the API Key."))
     }
     
     initializeSocket(defaultApiKey);
@@ -299,6 +299,10 @@
     
     #alert\:type {
       margin-top: 5px;
+    }
+
+    .d-none {
+      display: none;
     }
     
   </style>
