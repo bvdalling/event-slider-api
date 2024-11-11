@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Socket.IO Video Control</title>
+  <title>Event Slider Control Panel</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     /* Simple styling for clarity */
@@ -22,7 +22,7 @@
   <main>
     <div class="form-group">
 
-      <div class="input-group">
+      <div class="input-group d-none">
         <label for="api-key">API KEY</label>
         <input type="password" name="api-key" id="api-key" />
       </div>
@@ -75,10 +75,13 @@
     let socket;
     let socketAddr = window.location.origin.replace('https', 'wss').replace('http', 'wss')
 
-    console.log('Socket Address:', socketAddr);
     const audioEmbeds = [
       { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
-      { name: 'Chillwave - Synthwave - Retrowave', url: 'https://www.youtube.com/embed/videoseries?si=wVLbmMrEIAed2DBn&amp;list=PLOtNYlNIGer0jmWpFtTWqMkfP56iuZg1w' }
+      { name: 'Chillwave - Synthwave - Retrowave', url: 'https://www.youtube.com/embed/videoseries?si=wVLbmMrEIAed2DBn&amp;list=PLOtNYlNIGer0jmWpFtTWqMkfP56iuZg1w' },
+      { name: 'Party Music', url: 'https://www.youtube.com/embed/videoseries?si=TzDspRUNwbp9tZMi&amp;list=PLfP6i5T0-DkLpeFGWN6BYbzZDDqzMMBY9' },
+      { name: 'Lounge Music', url: 'https://www.youtube.com/embed/videoseries?si=ibQDnfCcto1xxiAN&amp;list=PLfP6i5T0-DkIqfFWnaxioU7PCcW9jZe3Q' },
+      { name: 'Final Countdown', url: 'https://www.youtube.com/embed/cZid3J36wH8?si=ygccJtU19hH9Kyvg' },
+      { name: 'Tron Soundtrack', url: 'https://www.youtube.com/embed/videoseries?si=HPLXU889uVBNI7Kt&amp;list=PLO6S2qKFLclrN-u7V2Wag7-C6rfgpWzG2' }
     ];
 
     const initializeSocket = (apiKey) => {
@@ -167,7 +170,12 @@
     };
 
     // Initial socket connection with a default API key if available
-    const defaultApiKey = apiKeyInput.value || "some-bacon-and-eggs-for-breakfast-1920-blender";
+    const defaultApiKey = window.localStorage.getItem("api-key");
+
+    if (!defaultApiKey || defaultApiKey == "null") {
+      window.localStorage.setItem(prompt("Enter the API Key."))
+    }
+    
     initializeSocket(defaultApiKey);
 
   </script>
