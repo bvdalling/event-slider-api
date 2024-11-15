@@ -68,12 +68,22 @@
           <input type="text" name="alert:message" id="alert:message" />
         </div>
       </div>
+
+      <div class="input-group">
+        <label for="">Text Size</label>
+        <div class="button-group">
+          <button id="small-text">Small</button>
+          <button id="large-text">Large</button>
+        </div>
+      </div>
     </div>
   </main>
   <script>
 
     let socket;
     let socketAddr = window.location.origin.replace('https', 'wss').replace('http', 'wss')
+
+    socketAddr = socketAddr.replace('wss', 'ws')
 
     const audioEmbeds = [
       { name: '8-bit - Chill', url: 'https://www.youtube.com/embed/videoseries?si=VEkW2Cv5iDy_Ghv2&amp;list=PLdsGes2mFh92eHpOZVJQgoubb6rF0CcvU' },
@@ -161,6 +171,16 @@
 
     document.getElementById("large-qr").onclick = () => {
       socket.emit("qr-code", 'qr-code qr-code__large');
+    };
+
+    document.getElementById("small-text").onclick = () => {
+      console.log("Small Text");
+      socket.emit("text-size", 'small-text');
+    };
+
+    document.getElementById("large-text").onclick = () => {
+      console.log("Large Text");
+      socket.emit("text-size", 'large-text');
     };
 
     document.getElementById("alert:message").onchange = (e) => {
@@ -266,7 +286,8 @@
     
     button#video\:start,
     button#audio\:start,
-    button#small-qr,
+    button#small-qr, button#small-text,
+    button#large-text,
     button#large-qr {
       background-color: #4a90e2;
     }

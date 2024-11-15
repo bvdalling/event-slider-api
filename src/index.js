@@ -22,7 +22,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type"], // Allow these headers
 }));
 
-var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 3001;
 
 const apiKey = process.env.API_KEY || "some-bacon-and-eggs-for-breakfast-1920-blender";
 
@@ -123,6 +123,12 @@ io.on("connection", (socket) => {
     console.log("QR Code:", data);
     socket.broadcast.emit("qr-code", data);
   });
+  
+  socket.on('text-size', (data => {
+    if (!SenderIsAuthorized(socket)) return;
+    console.log("Text Size:", data);
+    socket.broadcast.emit("text-size", data);
+  }))
 
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
